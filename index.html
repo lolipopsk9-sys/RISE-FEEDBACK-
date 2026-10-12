@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Student Feedback System</title>
+
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif;margin:0;padding:0}
+body{
+    min-height:100vh;display:flex;justify-content:center;align-items:center;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);padding:20px;
+}
+.container{
+    width:850px;max-width:100%;padding:35px;background:white;border-radius:15px;
+    box-shadow:0 15px 40px rgba(0,0,0,.3);
+}
+h1{text-align:center;color:#203a43;margin-bottom:8px}
+.subtitle{text-align:center;color:#777;font-size:14px;margin-bottom:25px}
+.form-group{margin-bottom:18px}
+.form-group>label{display:block;margin-bottom:8px;color:#333;font-weight:bold}
+.form-group input,.form-group select{
+    width:100%;padding:13px;border:1px solid #ccc;border-radius:8px;font-size:15px;
+    outline:none;transition:.3s;background:white
+}
+.form-group input:focus,.form-group select:focus{
+    border-color:#2c5364;box-shadow:0 0 5px rgba(44,83,100,.3)
+}
+.show-password{display:flex;align-items:center;gap:7px;margin-top:8px;color:#555;font-size:14px}
+.show-password input{width:auto;cursor:pointer}
+.show-password label{margin:0;font-weight:normal;cursor:pointer}
+.btn{
+    width:100%;padding:14px;border:none;border-radius:8px;background:#203a43;
+    color:white;font-size:16px;font-weight:bold;cursor:pointer;transition:.3s;margin-top:10px
+}
+.btn:hover{background:#2c5364;transform:translateY(-1px)}
+.message{display:none;margin-top:20px;padding:12px;border-radius:8px;text-align:center;font-size:14px}
+.error{background:#ffe5e5;color:#d00000;border:1px solid #ffb3b3}
+.success{background:#e5ffe9;color:#087f23;border:1px solid #9be7a8}
+#loginPage,#studentDetailsPage,#feedbackPage,#hodDashboard{display:none}
+#loginPage{display:block}
+.welcome{text-align:center;color:#203a43;margin-bottom:8px}
+.student-info{
+    background:#eef7fa;border:1px solid #b7dce8;border-radius:10px;padding:15px;margin-bottom:20px
+}
+.student-info h3{text-align:center;color:#203a43;margin-bottom:12px}
+.info-row{
+    display:flex;justify-content:space-between;padding:7px 0;color:#444;
+    border-bottom:1px solid #d8ebf0
+}
+.info-row:last-child{border-bottom:none}
+.info-label{font-weight:bold}
+.details-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.feedback-card{
+    background:#f8fbfc;border:1px solid #c9e1e8;border-radius:12px;padding:20px;
+}
+.feedback-card h2{text-align:center;color:#203a43;margin-bottom:8px}
+.feedback-question{text-align:center;color:#555;margin-bottom:18px}
+.feedback-item{
+    background:#fff;border:1px solid #d6e4e8;border-radius:10px;
+    padding:15px;margin-bottom:12px
+}
+.question-title{font-weight:bold;color:#333;margin-bottom:12px;line-height:1.45}
+.rating{
+    display:flex;gap:7px;flex-wrap:wrap;align-items:center
+}
+.rating label{cursor:pointer}
+.rating input{display:none}
+.rating span{
+    display:inline-block;width:38px;height:38px;line-height:38px;text-align:center;
+    border-radius:50%;background:#e2e8f0;color:#172554;font-weight:bold;transition:.2s
+}
+.rating input:checked+span{background:#203a43;color:white;transform:scale(1.08)}
+.rating span:hover{background:#2c5364;color:white}
+.rating-scale{
+    font-size:12px;color:#64748b;margin-top:8px
+}
+.result-box{
+    display:none;margin-top:20px;padding:20px;border-radius:10px;
+    background:#eef7fa;border:1px solid #b7dce8;text-align:center
+}
+.result-box h3{color:#203a43;margin-bottom:12px}
+.score{font-size:25px;font-weight:bold;color:#166534;margin:7px 0}
+.feedback-table{width:100%;border-collapse:collapse;margin-top:15px;font-size:13px}
+.feedback-table th,.feedback-table td{border:1px solid #ccc;padding:8px;text-align:center}
+.feedback-table th{background:#203a43;color:white}
+.feedback-table td:nth-child(2){text-align:left}
+.logout-btn{margin-top:15px;background:#d00000}
+.logout-btn:hover{background:#a00000}
+#hodDashboard{text-align:center}
+#hodDashboard h2{color:#203a43;margin-bottom:15px}
+#hodDashboard p{color:#555;margin-bottom:20px}
+.hod-box{
+    background:#eef7fa;border:1px solid #b7dce8;border-radius:10px;padding:20px;
+    text-align:left;margin-top:15px
+}
+
+.hod-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.summary-card{background:white;border:1px solid #c9e1e8;border-radius:10px;padding:15px;text-align:center}
+.summary-card span{display:block;font-size:24px;font-weight:bold;color:#203a43}
+.summary-card small{display:block;color:#64748b;margin-top:5px}
+.table-wrap{overflow-x:auto}
+.download-btn{width:auto;padding:10px 16px;margin:8px 8px 12px 0;background:#16703c}
+.download-btn:hover{background:#10552d}
+#hodMatrixTable{min-width:1100px;font-size:11px}
+#hodMatrixTable th,#hodMatrixTable td{padding:6px;white-space:nowrap}
+#hodMatrixTable th:first-child,#hodMatrixTable td:first-child,
+#hodMatrixTable th:nth-child(2),#hodMatrixTable td:nth-child(2){position:sticky;left:0;background:#f8fbfc;z-index:1}
+#hodMatrixTable th:first-child,#hodMatrixTable th:nth-child(2){background:#203a43;color:white;z-index:2}
+@media(max-width:650px){
+    .container{padding:20px}
+    .details-grid{grid-template-columns:1fr}
+    .rating span{width:34px;height:34px;line-height:34px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- LOGIN -->
+<div id="loginPage">
+    <h1>College Login</h1>
+    <p class="subtitle">Login as Student or HOD</p>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <div class="show-password">
+                <input type="checkbox" id="showPassword">
+                <label for="showPassword">Show Password</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="role">Login As</label>
+            <select id="role" required>
+                <option value="">-- Select Role --</option>
+                <option value="student">Student</option>
+                <option value="hod">HOD</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+    </form>
+
+    <div id="loginMessage" class="message"></div>
+</div>
+
+<!-- STUDENT DETAILS -->
+<div id="studentDetailsPage">
+    <h1 class="welcome">Welcome Student!</h1>
+    <p class="subtitle">Please select your academic details</p>
+
+    <form id="studentDetailsForm">
+        <div class="form-group">
+            <label for="branch">Select Branch</label>
+            <select id="branch" required>
+                <option value="">-- Select Branch --</option>
+                <option value="CSE">Computer Science and Engineering (CSE)</option>
+                <option value="ECE">Electronics and Communication Engineering (ECE)</option>
+                <option value="EEE">Electrical and Electronics Engineering (EEE)</option>
+                <option value="MECH">Mechanical Engineering (MECH)</option>
+                <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                <option value="IT">Information Technology (IT)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="year">Current Year</label>
+            <select id="year" required>
+                <option value="">-- Select Year --</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+            </select>
+        </div>
+
+
+
+        <div class="form-group">
+            <label for="section">Section</label>
+            <select id="section" required>
+                <option value="">-- Select Section --</option>
+                <option value="1">Section 1</option>
+                <option value="2">Section 2</option>
+                <option value="3">Section 3</option>
+                <option value="4">Section 4</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn">Next</button>
+    </form>
+
+    <button class="btn logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- FEEDBACK -->
+<div id="feedbackPage">
+    <h1 class="welcome">Student Feedback</h1>
+    <p class="subtitle">Give your faculty feedback from 1 to 10</p>
+
+    <div class="student-info">
+        <h3>Your Academic Details</h3>
+        <div class="info-row"><span class="info-label">Branch</span><span id="feedbackBranch"></span></div>
+        <div class="info-row"><span class="info-label">Year</span><span id="feedbackYear"></span></div>
+        <div class="info-row"><span class="info-label">Section</span><span id="feedbackSection"></span></div>
+    </div>
+
+    <div class="feedback-card">
+        <h2>Faculty Details</h2>
+
+        <div class="details-grid">
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <select id="subject" required onchange="updateFacultyFromSubject()">
+                    <option value="">-- Select Subject --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="faculty">Faculty Name</label>
+                <select id="faculty" required>
+                    <option value="">-- Select Faculty --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="feedbackEmail">Student Email</label>
+                <input type="email" id="feedbackEmail" readonly>
+            </div>
+        </div>
+
+        <div id="eceEligibilityNotice" class="message" style="display:none;margin-bottom:15px;"></div>
+
+        <h2 style="margin-top:10px;">Feedback Analysis</h2>
+        <p class="feedback-question">
+            Please rate every parameter from <b>1 to 10</b>.
+            1 = Poor and 10 = Excellent.
+        </p>
+
+        <div id="questionsContainer"></div>
+
+        <div id="customQuestionsSection" class="custom-student-section" style="display:none;">
+            <h3>HOD Questions</h3>
+            <p style="color:#666;margin:8px 0 15px;">Please rate each HOD question from 1 to 10.</p>
+            <div id="customQuestionsContainer"></div>
+        </div>
+
+        <button type="button" class="btn" id="submitFeedbackBtn" onclick="submitFeedback()">
+            Submit Feedback
+        </button>
+
+        <div id="feedbackSuccess" class="message success">
+            ✓ Thank you! Your feedback has been submitted successfully.
+        </div>
+    </div>
+
+    <div id="resultBox" class="result-box"></div>
+
+    <button class="btn logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- HOD DASHBOARD -->
+<div id="hodDashboard">
+    <h2>HOD Feedback Dashboard</h2>
+    <p>View total student ratings, averages and faculty-wise feedback.</p>
+
+    <div class="hod-box">
+        <div class="hod-summary">
+            <div class="summary-card"><span id="totalResponses">0</span><small>Total Responses</small></div>
+            <div class="summary-card"><span id="overallAverage">0.00 / 10</span><small>Overall Average</small></div>
+            <div class="summary-card"><span id="overallPercentage">0.00%</span><small>Overall Percentage</small></div>
+        </div>
+
+        <h3 style="margin-top:20px;">ECE Department — Year & Section Feedback Report</h3>
+        <p style="color:#666;margin:8px 0 12px;">Choose a year and section to view only that group's submitted feedback. Groups without faculty data in the supplied sheets will still appear in the report as empty groups.</p>
+        <div class="details-grid" style="margin:12px 0 18px;">
+            <div class="form-group">
+                <label for="hodDepartmentFilter">Department</label>
+                <select id="hodDepartmentFilter">
+                    <option value="ECE">ECE — Electronics and Communication Engineering</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="hodYearFilter">Year</label>
+                <select id="hodYearFilter" onchange="loadHodDashboard()">
+                    <option value="ALL">All Years</option>
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="hodSectionFilter">Section</label>
+                <select id="hodSectionFilter" onchange="loadHodDashboard()">
+                    <option value="ALL">All Sections</option>
+                    <option value="1">Section 1</option>
+                    <option value="2">Section 2</option>
+                    <option value="3">Section 3</option>
+                    <option value="4">Section 4</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn download-btn" type="button" onclick="downloadSelectedExcel()">Download Excel — Selected Year & Section</button>
+        <button class="btn download-btn" type="button" onclick="downloadSelectedExcel(true)">Download Excel — All ECE Data</button>
+        <div class="table-wrap">
+            <table class="feedback-table" id="hodGroupSummaryTable">
+                <thead><tr><th>Department</th><th>Year</th><th>Section</th><th>Faculty/Subjects Available</th><th>Responses</th><th>Total Rating</th><th>Average / 10</th><th>Percentage</th><th>Excel</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top:20px;">Faculty-wise Total Rating</h3>
+        <div class="table-wrap">
+            <table class="feedback-table" id="hodTable">
+                <thead>
+                    <tr>
+                        <th>Faculty</th>
+                        <th>Subject</th>
+                        <th>Students</th>
+                        <th>Total Rating</th>
+                        <th>Average / 10</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top:25px;">Parameter-wise Rating Matrix (Spreadsheet View)</h3>
+        <p style="color:#666;margin:8px 0 12px;">Each response is shown in its own column, with one row per feedback parameter, similar to the supplied sheet.</p>
+        <div class="table-wrap">
+            <table class="feedback-table" id="hodMatrixTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top:25px;">Parameter-wise Average Rating</h3>
+        <div class="table-wrap">
+            <table class="feedback-table" id="parameterTable">
+                <thead>
+                    <tr><th>No.</th><th>Parameter</th><th>Average / 10</th><th>Percentage</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="custom-question-box">
+            <h3>Create Separate Student Questions</h3>
+            <p style="color:#666;margin-bottom:15px;">HOD can create extra questions. Students will see these questions separately and give a 1–10 rating.</p>
+            <div class="custom-question-form">
+                <div>
+                    <label>Question</label>
+                    <input type="text" id="newCustomQuestion" placeholder="Enter your question">
+                </div>
+                <div>
+                    <label>Branch</label>
+                    <select id="customBranch">
+                        <option value="ALL">All Branches</option>
+                        <option value="CSE">CSE</option><option value="ECE">ECE</option><option value="EEE">EEE</option><option value="MECH">MECH</option><option value="CIVIL">CIVIL</option><option value="IT">IT</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Year</label>
+                    <select id="customYear">
+                        <option value="ALL">All Years</option><option value="1st Year">1st Year</option><option value="2nd Year">2nd Year</option><option value="3rd Year">3rd Year</option><option value="4th Year">4th Year</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Section</label>
+                    <select id="customSection">
+                        <option value="ALL">All Sections</option><option value="1">Section 1</option><option value="2">Section 2</option><option value="3">Section 3</option><option value="4">Section 4</option>
+                    </select>
+                </div>
+                <button class="btn" type="button" onclick="addCustomQuestion()">Add Question</button>
+            </div>
+            <div id="customQuestionList" class="question-list"></div>
+        </div>
+
+        <h3 style="margin-top:25px;">HOD Custom Question Results</h3>
+        <div class="table-wrap">
+            <table class="feedback-table" id="customQuestionTable">
+                <thead><tr><th>Question</th><th>Responses</th><th>Average / 10</th><th>Percentage</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <button class="btn" onclick="loadHodDashboard()">Refresh Ratings</button>
+        <button class="btn" onclick="clearFeedbackData()" style="background:#b91c1c;">Clear Feedback Data</button>
+    </div>
+
+    <button class="btn logout-btn" onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+<script>
+/* =========================
+   LOGIN CREDENTIALS
+========================= */
+const studentAccount = {
+    email: "risecollegestud@gmail.com",
+    password: "risestud@1234"
+};
+
+const hodAccount = {
+    email: "ecedepthod@gmail.com",
+    password: "ECEdepthod@1234"
+};
+
+let loggedInStudentEmail = "";
+let currentStudentDetails = {branch:"", year:"", section:""};
+
+/* =========================
+   15 FEEDBACK PARAMETERS
+========================= */
+const questions = [
+    "Knowledge of the subject",
+    "Coming well prepared for the class",
+    "Giving clear explanations",
+    "Command of language",
+    "Clear and audible voice",
+    "Holding the attention of students through the class",
+    "Providing more matter than in the textbooks",
+    "Capability to clear the doubts of students",
+    "Encouraging the students to ask questions and participate in discussion",
+    "Appreciating students and work deserving",
+    "Willingness to help students even out of the class",
+    "Return of valued test papers/scripts in time",
+    "Punctuality and following timetable schedule",
+    "Coverage of syllabus",
+    "Impartial (teaching all students alike)"
+];
+
+/* =========================
+   DEPARTMENT / YEAR / SECTION / FACULTY MAPPING
+   Source: the 8 college feedback images supplied in this chat.
+   Only the faculty-subject combinations visible in those images are added.
+========================= */
+const academicFacultyMap = {
+    ECE: {
+        "2nd Year": {
+            "1": {
+                "EDC": "Dr. S.Chandrasekhar",
+                "PTSP": "Dr. M.Rakesh",
+                "STLD": "Mr. Sk.Khajavali",
+                "SS": "Dr. Ch.Venugopal Reddy",
+                "MEFA": "Mrs. M.Siva Parvathi"
+            },
+            "2": {
+                "EDC": "Mr. P.Malyadri",
+                "PTSP": "Mr. V.Jai Kumar",
+                "STLD": "Dr. P.Chanukya",
+                "SS": "Dr. V.T.Venkateswarlu",
+                "MEFA": "Mrs. M.Siva Parvathi"
+            },
+            "3": {
+                "EDC": "Dr. S.Chandrasekhar",
+                "PTSP": "Dr. M.Rakesh",
+                "STLD": "Mr. Sk.Khajavali",
+                "SS": "Dr. Ch.Venugopal Reddy",
+                "MEFA": "Mrs. M.Siva Parvathi"
+            },
+            "4": {
+                "EDC": "Mr. P.Malyadri",
+                "PTSP": "Mr. V.Jai Kumar",
+                "STLD": "Dr. P.Chanukya",
+                "SS": "Dr. V.T.Venkateswarlu",
+                "MEFA": "Mrs. M.Siva Parvathi"
+            }
+        },
+        "3rd Year": {
+            "1": {
+                "ADIC": "Mr. K.Saiman",
+                "AWP": "Mr. P.Veerabhagyulu",
+                "DC": "Mrs. A.S.N.Durga",
+                "EMI": "Mrs. K.Rajyalakshmi",
+                "SET": "Mrs. Vaneela"
+            },
+            "2": {
+                "ADIC": "Mr. K.Saiman",
+                "AWP": "Mr. P.Veerabhagyulu",
+                "DC": "Mrs. A.S.N.Durga",
+                "EMI": "Mrs. K.Rajyalakshmi",
+                "SET": "Mrs. Vaneela"
+            }
+        },
+        "4th Year": {
+            "1": {
+                "CMC": "Mr. D.Syambabu",
+                "LP": "Dr. P.Surya",
+                "DL": "Dr. K.S.L.Prasanna",
+                "CN": "Mr. P.V.M.Vijaya Bhaskar",
+                "MS": "Mrs. M.Sireesha"
+            },
+            "2": {
+                "CMC": "Mr. D.Syambabu",
+                "LP": "Dr. P.Surya",
+                "DL": "Dr. K.S.L.Prasanna",
+                "CN": "Mr. P.V.M.Vijaya Bhaskar",
+                "MS": "Mrs. M.Sireesha"
+            }
+        }
+    }
+};
+
+function getCurrentFacultyMap(){
+    const branch = document.getElementById("branch").value;
+    const year = document.getElementById("year").value;
+    const section = document.getElementById("section").value;
+    return (academicFacultyMap[branch] && academicFacultyMap[branch][year] && academicFacultyMap[branch][year][section]) || {};
+}
+
+function updateFacultyOptions(){
+    const subject = document.getElementById("subject");
+    const faculty = document.getElementById("faculty");
+    const map = getCurrentFacultyMap();
+
+    // Populate subjects for the selected branch/year/section.
+    subject.innerHTML = '<option value="">-- Select Subject --</option>';
+    Object.keys(map).forEach(subjectCode => {
+        subject.innerHTML += `<option value="${subjectCode}">${subjectCode}</option>`;
+    });
+
+    // Faculty is selected only after the subject is chosen.
+    faculty.innerHTML = '<option value="">-- Select Faculty --</option>';
+}
+
+function updateFacultyFromSubject(){
+    const subject = document.getElementById("subject").value;
+    const faculty = document.getElementById("faculty");
+    const map = getCurrentFacultyMap();
+
+    faculty.innerHTML = '<option value="">-- Select Faculty --</option>';
+    if (subject && map[subject]) {
+        const name = map[subject];
+        faculty.innerHTML = `<option value="${name}">${name}</option>`;
+        faculty.value = name;
+    }
+}
+
+// Faculty list changes automatically for Department/Branch + Year + Section.
+document.getElementById("branch").addEventListener("change", updateFacultyOptions);
+document.getElementById("year").addEventListener("change", updateFacultyOptions);
+document.getElementById("section").addEventListener("change", updateFacultyOptions);
+
+/* =========================
+   HOD CUSTOM QUESTIONS
+========================= */
+function getCustomQuestions(){
+    return JSON.parse(localStorage.getItem("hodCustomQuestions")) || [];
+}
+
+function saveCustomQuestions(data){
+    localStorage.setItem("hodCustomQuestions", JSON.stringify(data));
+}
+
+function addCustomQuestion(){
+    const text=document.getElementById("newCustomQuestion").value.trim();
+    const branch=document.getElementById("customBranch").value;
+    const year=document.getElementById("customYear").value;
+    const section=document.getElementById("customSection").value;
+    if(!text){ alert("Please enter the question."); return; }
+    const data=getCustomQuestions();
+    data.push({id:Date.now(),text,branch,year,section,created:new Date().toLocaleString()});
+    saveCustomQuestions(data);
+    document.getElementById("newCustomQuestion").value="";
+    loadCustomQuestionList();
+    alert("Question added successfully. Students in the selected group can now see it.");
+}
+
+function deleteCustomQuestion(id){
+    if(!confirm("Delete this question?")) return;
+    saveCustomQuestions(getCustomQuestions().filter(q=>q.id!==id));
+    loadCustomQuestionList();
+}
+
+function loadCustomQuestionList(){
+    const box=document.getElementById("customQuestionList");
+    if(!box) return;
+    const data=getCustomQuestions();
+    if(!data.length){ box.innerHTML='<p style="color:#777;">No extra questions created yet.</p>'; return; }
+    box.innerHTML=data.map(q=>`<div class="custom-q-row"><div><b>${escapeHtml(q.text)}</b><br><small>Branch: ${q.branch} | Year: ${q.year} | Section: ${q.section}</small></div><button class="btn delete-q" onclick="deleteCustomQuestion(${q.id})">Delete</button></div>`).join("");
+}
+
+function escapeHtml(value){
+    return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]));
+}
+
+function renderCustomQuestions(){
+    const section=document.getElementById("customQuestionsSection");
+    const container=document.getElementById("customQuestionsContainer");
+    if(!section || !container) return;
+    const {branch,year,section:sec}=currentStudentDetails;
+    const data=getCustomQuestions().filter(q=>
+        (q.branch==="ALL" || q.branch===branch) &&
+        (q.year==="ALL" || q.year===year) &&
+        (q.section==="ALL" || q.section===sec)
+    );
+    container.innerHTML="";
+    if(!data.length){ section.style.display="none"; return; }
+    section.style.display="block";
+    data.forEach((q,i)=>{
+        container.innerHTML += `<div class="feedback-item"><div class="question-title">H${i+1}. ${escapeHtml(q.text)}</div><div class="rating">${Array.from({length:10},(_,n)=>{const r=n+1;return `<label title="${r}/10"><input type="radio" name="custom_${q.id}" value="${r}"><span>${r}</span></label>`}).join("")}</div><div class="rating-scale">1 = Poor | 5 = Average | 10 = Excellent</div></div>`;
+    });
+}
+
+/* =========================
+   CREATE 1-10 RATINGS
+========================= */
+function createQuestions() {
+    const container = document.getElementById("questionsContainer");
+    container.innerHTML = "";
+
+    questions.forEach((question, index) => {
+        let html = `
+            <div class="feedback-item">
+                <div class="question-title">
+                    ${index + 1}. ${question}
+                </div>
+
+                <div class="rating">
+        `;
+
+        for (let rating = 1; rating <= 10; rating++) {
+            html += `
+                <label title="${rating}/10">
+                    <input type="radio" name="q${index}" value="${rating}">
+                    <span>${rating}</span>
+                </label>
+            `;
+        }
+
+        html += `
+                </div>
+                <div class="rating-scale">
+                    1 = Poor &nbsp; | &nbsp; 5 = Average &nbsp; | &nbsp; 10 = Excellent
+                </div>
+            </div>
+        `;
+
+        container.innerHTML += html;
+    });
+}
+
+createQuestions();
+
+/* =========================
+   SHOW / HIDE PASSWORD
+========================= */
+document.getElementById("showPassword").addEventListener("change", function() {
+    document.getElementById("password").type =
+        this.checked ? "text" : "password";
+});
+
+/* =========================
+   LOGIN
+========================= */
+document.getElementById("loginForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+
+    if (role === "") {
+        showMessage("Please select Student or HOD.", "error");
+        return;
+    }
+
+    if (role === "student") {
+        if (email === studentAccount.email && password === studentAccount.password) {
+            loggedInStudentEmail = email;
+
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("studentDetailsPage").style.display = "block";
+            document.getElementById("feedbackPage").style.display = "none";
+
+            document.getElementById("feedbackEmail").value = email;
+        } else {
+            showMessage("Invalid Student email or password.", "error");
+        }
+        return;
+    }
+
+    if (role === "hod") {
+        if (email === hodAccount.email && password === hodAccount.password) {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("hodDashboard").style.display = "block";
+            loadHodDashboard();
+        } else {
+            showMessage("Invalid HOD email or password.", "error");
+        }
+    }
+});
+
+function showMessage(text, type) {
+    const message = document.getElementById("loginMessage");
+    message.textContent = text;
+    message.className = "message " + type;
+    message.style.display = "block";
+}
+
+/* =========================
+   STUDENT DETAILS
+========================= */
+document.getElementById("studentDetailsForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const branch = document.getElementById("branch").value;
+    const year = document.getElementById("year").value;
+    const section = document.getElementById("section").value;
+
+    document.getElementById("feedbackBranch").textContent = branch;
+    document.getElementById("feedbackYear").textContent = year;
+    document.getElementById("feedbackSection").textContent = "Section " + section;
+
+    currentStudentDetails = {branch:branch, year:year, section:section};
+    document.getElementById("feedbackEmail").value = loggedInStudentEmail;
+
+    const hasFacultyMapping = Object.keys((academicFacultyMap[branch] && academicFacultyMap[branch][year] && academicFacultyMap[branch][year][section]) || {}).length > 0;
+
+    document.getElementById("studentDetailsPage").style.display = "none";
+    document.getElementById("feedbackPage").style.display = "block";
+
+    resetFeedback();
+
+    const standardContainer = document.getElementById("questionsContainer");
+    const notice = document.getElementById("eceEligibilityNotice");
+
+    if (hasFacultyMapping) {
+        standardContainer.style.display = "block";
+        notice.style.display = "block";
+        notice.className = "message success";
+        notice.textContent = "Faculty list loaded for " + branch + " – " + year + " – Section " + section + ".";
+        updateFacultyOptions();
+    } else {
+        standardContainer.style.display = "none";
+        notice.style.display = "block";
+        notice.className = "message error";
+        notice.textContent = "Faculty details are not available for this Department/Year/Section in the supplied feedback sheets.";
+    }
+
+    renderCustomQuestions();
+});
+
+/* =========================
+   SUBMIT 15 RATINGS
+========================= */
+function submitFeedback() {
+
+    const faculty = document.getElementById("faculty").value;
+    const subject = document.getElementById("subject").value.trim();
+
+    if (faculty === "") {
+        alert("Please select Faculty Name.");
+        return;
+    }
+
+    if (subject === "") {
+        alert("Please enter Subject.");
+        return;
+    }
+
+    const hasFacultyMapping = Object.keys((academicFacultyMap[currentStudentDetails.branch] && academicFacultyMap[currentStudentDetails.branch][currentStudentDetails.year] && academicFacultyMap[currentStudentDetails.branch][currentStudentDetails.year][currentStudentDetails.section]) || {}).length > 0;
+
+    let ratings = [];
+
+    if (hasFacultyMapping) {
+        for (let i = 0; i < questions.length; i++) {
+            const selected = document.querySelector(
+                `input[name="q${i}"]:checked`
+            );
+
+            if (!selected) {
+                alert("Please give a rating for Question " + (i + 1));
+                return;
+            }
+
+            ratings.push(Number(selected.value));
+        }
+    }
+
+    const total = ratings.reduce((sum, value) => sum + value, 0);
+    const average = ratings.length ? total / ratings.length : 0;
+    const percentage = ratings.length ? (total / (ratings.length * 10)) * 100 : 0;
+
+    const customQuestions = getCustomQuestions().filter(q=>
+        (q.branch==="ALL" || q.branch===currentStudentDetails.branch) &&
+        (q.year==="ALL" || q.year===currentStudentDetails.year) &&
+        (q.section==="ALL" || q.section===currentStudentDetails.section)
+    );
+    const customRatings = [];
+    for(const q of customQuestions){
+        const selected=document.querySelector(`input[name="custom_${q.id}"]:checked`);
+        if(!selected){ alert("Please give a rating for: " + q.text); return; }
+        customRatings.push({questionId:q.id, question:q.text, rating:Number(selected.value)});
+    }
+
+    const feedbackData = {
+        studentEmail: loggedInStudentEmail,
+        branch: document.getElementById("feedbackBranch").textContent,
+        year: document.getElementById("feedbackYear").textContent,
+        section: document.getElementById("feedbackSection").textContent,
+        faculty: faculty,
+        subject: subject,
+        ratings: ratings,
+        total: total,
+        average: average.toFixed(2),
+        percentage: percentage.toFixed(2),
+        customRatings: customRatings,
+        date: new Date().toLocaleString()
+    };
+
+    /* Save feedback in browser */
+    let allFeedback =
+        JSON.parse(localStorage.getItem("collegeFeedbackData")) || [];
+
+    allFeedback.push(feedbackData);
+
+    localStorage.setItem(
+        "collegeFeedbackData",
+        JSON.stringify(allFeedback)
+    );
+
+    /* Success */
+    document.getElementById("feedbackSuccess").style.display = "block";
+
+    // Student only sees confirmation. Total rating is shown in HOD dashboard.
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("feedbackSuccess").textContent =
+        "✓ Feedback submitted successfully. Thank you!";
+
+    /* Prevent duplicate submission on same page */
+    document.getElementById("submitFeedbackBtn").disabled = true;
+    document.getElementById("submitFeedbackBtn").style.opacity = "0.6";
+
+    document.getElementById("feedbackSuccess").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+/* =========================
+   RESET FEEDBACK
+========================= */
+function resetFeedback() {
+    document.querySelectorAll(
+        '#questionsContainer input[type="radio"]'
+    ).forEach(radio => {
+        radio.checked = false;
+        radio.disabled = false;
+    });
+
+    document.getElementById("subject").innerHTML = '<option value="">-- Select Subject --</option>';
+    document.getElementById("faculty").innerHTML = '<option value="">-- Select Faculty --</option>';
+    const notice = document.getElementById("eceEligibilityNotice");
+    if (notice) { notice.style.display = "none"; notice.textContent = ""; }
+
+    document.getElementById("feedbackSuccess").style.display = "none";
+    document.querySelectorAll('#customQuestionsContainer input[type="radio"]').forEach(radio=>{radio.checked=false;radio.disabled=false;});
+    document.getElementById("resultBox").style.display = "none";
+
+    document.getElementById("submitFeedbackBtn").disabled = false;
+    document.getElementById("submitFeedbackBtn").style.opacity = "1";
+}
+
+/* =========================
+   HOD DASHBOARD REPORTS
+========================= */
+function getHodFilteredFeedback() {
+    const all = JSON.parse(localStorage.getItem("collegeFeedbackData")) || [];
+    const year = document.getElementById("hodYearFilter")?.value || "ALL";
+    const section = document.getElementById("hodSectionFilter")?.value || "ALL";
+    return all.filter(x =>
+        x.branch === "ECE" &&
+        (year === "ALL" || x.year === year) &&
+        (section === "ALL" || String(x.section).replace("Section ", "") === section)
+    );
+}
+
+function renderHodGroupSummary(allData) {
+    const body = document.querySelector("#hodGroupSummaryTable tbody");
+    if (!body) return;
+    const years = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+    const sections = ["1", "2", "3", "4"];
+    const yearFilter = document.getElementById("hodYearFilter")?.value || "ALL";
+    const sectionFilter = document.getElementById("hodSectionFilter")?.value || "ALL";
+    const rows = [];
+    years.filter(y => yearFilter === "ALL" || y === yearFilter).forEach(year => {
+        sections.filter(s => sectionFilter === "ALL" || s === sectionFilter).forEach(section => {
+            const mapping = (academicFacultyMap.ECE && academicFacultyMap.ECE[year] && academicFacultyMap.ECE[year][section]) || {};
+            const group = allData.filter(x => x.branch === "ECE" && x.year === year &&
+                String(x.section).replace("Section ", "") === section &&
+                Array.isArray(x.ratings) && x.ratings.length === questions.length);
+            const total = group.reduce((sum, x) => sum + Number(x.total || 0), 0);
+            const count = group.length;
+            const avg = count ? group.reduce((sum, x) => sum + Number(x.average || 0), 0) / count : 0;
+            rows.push(`<tr><td>ECE</td><td>${year}</td><td>Section ${section}</td><td>${Object.keys(mapping).length ? Object.entries(mapping).map(([sub, fac]) => `${escapeHtml(sub)} — ${escapeHtml(fac)}`).join("<br>") : "Faculty data not supplied"}</td><td>${count}</td><td>${total} / ${count * 150}</td><td>${avg.toFixed(2)} / 10</td><td>${(avg * 10).toFixed(2)}%</td><td><button type="button" class="btn download-btn" onclick="downloadGroupExcel('${year}','${section}')">Download</button></td></tr>`);
+        });
+    });
+    body.innerHTML = rows.join("") || '<tr><td colspan="9">No matching groups.</td></tr>';
+}
+
+function renderHodRatingMatrix(data) {
+    const table = document.getElementById("hodMatrixTable");
+    if (!table) return;
+    const head = table.querySelector("thead");
+    const body = table.querySelector("tbody");
+    const responses = data.filter(x => Array.isArray(x.ratings) && x.ratings.length === questions.length);
+    head.innerHTML = `<tr><th>No.</th><th>Feedback Parameter</th>${responses.map((x, i) => `<th title="${escapeHtml(x.year || "")} / ${escapeHtml(x.section || "")} / ${escapeHtml(x.faculty || "")}">${i + 1}<br>${escapeHtml(x.year || "")}<br>${escapeHtml(x.section || "")}<br>${escapeHtml(x.faculty || "")}</th>`).join("")}<th>Total</th><th>Average</th><th>% Total</th></tr>`;
+    body.innerHTML = questions.map((question, index) => {
+        const vals = responses.map(x => Number(x.ratings[index] || 0));
+        const total = vals.reduce((a, b) => a + b, 0);
+        const avg = vals.length ? total / vals.length : 0;
+        return `<tr><td>${index + 1}</td><td>${escapeHtml(question)}</td>${vals.map(v => `<td>${v || "—"}</td>`).join("")}<td><b>${total}</b></td><td>${avg.toFixed(2)}</td><td>${(avg * 10).toFixed(2)}%</td></tr>`;
+    }).join("");
+    if (!responses.length) {
+        head.innerHTML = "<tr><th>No.</th><th>Feedback Parameter</th><th>No responses yet</th></tr>";
+        body.innerHTML = '<tr><td colspan="3">No submitted feedback for the selected ECE year/section.</td></tr>';
+    }
+}
+
+function loadHodDashboard() {
+    const allData = JSON.parse(localStorage.getItem("collegeFeedbackData")) || [];
+    renderHodGroupSummary(allData);
+    const data = getHodFilteredFeedback();
+
+    loadCustomQuestionList();
+    loadCustomQuestionResults(data);
+
+    // Include all 15-parameter feedback submitted for the mapped Department/Year/Section groups.
+    const standardData = data.filter(x =>
+        Array.isArray(x.ratings) &&
+        x.ratings.length === questions.length
+    );
+
+    renderHodRatingMatrix(standardData);
+    document.getElementById("totalResponses").textContent = standardData.length;
+
+    if (standardData.length === 0) {
+        document.getElementById("overallAverage").textContent = "0.00 / 10";
+        document.getElementById("overallPercentage").textContent = "0.00%";
+    } else {
+        const avg = standardData.reduce((sum, x) => sum + Number(x.average), 0) / standardData.length;
+        document.getElementById("overallAverage").textContent = avg.toFixed(2) + " / 10";
+        document.getElementById("overallPercentage").textContent = (avg * 10).toFixed(2) + "%";
+    }
+
+    const facultyMap = {};
+    standardData.forEach(x => {
+        const key = x.faculty + "|||" + x.subject;
+        if (!facultyMap[key]) facultyMap[key] = {faculty:x.faculty, subject:x.subject, students:0, total:0};
+        facultyMap[key].students++;
+        facultyMap[key].total += Number(x.total);
+    });
+
+    const facultyBody = document.querySelector("#hodTable tbody");
+    facultyBody.innerHTML = "";
+    const facultyRows = Object.values(facultyMap);
+
+    if (facultyRows.length === 0) {
+        facultyBody.innerHTML = '<tr><td colspan="6">No feedback submitted yet.</td></tr>';
+    } else {
+        facultyRows.forEach(x => {
+            const max = x.students * questions.length * 10;
+            const avg = x.total / (x.students * questions.length);
+            const pct = (x.total / max) * 100;
+            facultyBody.innerHTML += `<tr>
+                <td>${x.faculty}</td>
+                <td>${x.subject}</td>
+                <td>${x.students}</td>
+                <td><b>${x.total} / ${x.students * 150}</b></td>
+                <td><b>${avg.toFixed(2)} / 10</b></td>
+                <td><b>${pct.toFixed(2)}%</b></td>
+            </tr>`;
+        });
+    }
+
+    const paramTotals = Array(questions.length).fill(0);
+    standardData.forEach(x => x.ratings.forEach((r,i) => paramTotals[i] += Number(r)));
+    const paramBody = document.querySelector("#parameterTable tbody");
+    paramBody.innerHTML = "";
+    if (standardData.length === 0) {
+        paramBody.innerHTML = '<tr><td colspan="4">No ECE 2nd Year 2nd Semester feedback submitted yet.</td></tr>';
+    } else {
+        questions.forEach((q,i) => {
+            const avg = paramTotals[i] / standardData.length;
+            paramBody.innerHTML += `<tr><td>${i+1}</td><td>${q}</td><td><b>${avg.toFixed(2)} / 10</b></td><td><b>${(avg*10).toFixed(2)}%</b></td></tr>`;
+        });
+    }
+}
+
+function loadCustomQuestionResults(data){
+    const body=document.querySelector("#customQuestionTable tbody");
+    const questionsMap={};
+    data.forEach(item=>{
+        (item.customRatings||[]).forEach(r=>{
+            if(!questionsMap[r.questionId]) questionsMap[r.questionId]={question:r.question,responses:0,total:0};
+            questionsMap[r.questionId].responses++;
+            questionsMap[r.questionId].total+=Number(r.rating);
+        });
+    });
+    body.innerHTML="";
+    const rows=Object.values(questionsMap);
+    if(!rows.length){body.innerHTML='<tr><td colspan="4">No custom question feedback submitted yet.</td></tr>';return;}
+    rows.forEach(x=>{const avg=x.total/x.responses;body.innerHTML+=`<tr><td style="text-align:left">${escapeHtml(x.question)}</td><td>${x.responses}</td><td><b>${avg.toFixed(2)} / 10</b></td><td><b>${(avg*10).toFixed(2)}%</b></td></tr>`;});
+}
+
+function excelCell(value) {
+    return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function downloadExcelFile(filename, rows) {
+    const table = `<table border="1">${rows.map((row, i) =>
+        `<tr>${row.map(cell => i === 0 ? `<th>${excelCell(cell)}</th>` : `<td>${excelCell(cell)}</td>`).join("")}</tr>`
+    ).join("")}</table>`;
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${table}</body></html>`;
+    const blob = new Blob(["\ufeff", html], {type: "application/vnd.ms-excel;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
+function downloadGroupExcel(year, section) {
+    const all = JSON.parse(localStorage.getItem("collegeFeedbackData")) || [];
+    const data = all.filter(x => x.branch === "ECE" && x.year === year &&
+        String(x.section).replace("Section ", "") === String(section));
+    const rows = [["Department","Year","Section","Student Email","Subject","Faculty","Date",
+        ...questions, "Total Rating","Average / 10","Percentage"]];
+    data.forEach(x => {
+        const ratings = Array.isArray(x.ratings) ? x.ratings : [];
+        rows.push(["ECE", year, "Section " + section, x.studentEmail || "", x.subject || "",
+            x.faculty || "", x.date || "", ...questions.map((q,i) => ratings[i] ?? ""),
+            x.total ?? "", x.average ?? "", x.percentage ?? ""]);
+    });
+    if (!data.length) rows.push(["ECE", year, "Section " + section, "No feedback submitted yet"]);
+    downloadExcelFile(`ECE_${year.replace(/ /g,"_")}_Section_${section}_Feedback.xls`, rows);
+}
+
+function downloadSelectedExcel(allData = false) {
+    const year = document.getElementById("hodYearFilter").value;
+    const section = document.getElementById("hodSectionFilter").value;
+    const all = (JSON.parse(localStorage.getItem("collegeFeedbackData")) || []).filter(x => x.branch === "ECE");
+    const data = (allData || (year === "ALL" && section === "ALL")) ? all : all.filter(x =>
+        (year === "ALL" || x.year === year) &&
+        (section === "ALL" || String(x.section).replace("Section ", "") === section));
+    const rows = [["Department","Year","Section","Student Email","Subject","Faculty","Date",
+        ...questions, "Total Rating","Average / 10","Percentage"]];
+    data.forEach(x => rows.push(["ECE", x.year || "", x.section || "", x.studentEmail || "",
+        x.subject || "", x.faculty || "", x.date || "",
+        ...questions.map((q,i) => (x.ratings || [])[i] ?? ""),
+        x.total ?? "", x.average ?? "", x.percentage ?? ""]));
+    if (!data.length) rows.push(["ECE","No feedback submitted for selected filters"]);
+    const filename = (allData || (year === "ALL" && section === "ALL"))
+        ? "ECE_All_Years_All_Sections_Feedback.xls"
+        : `ECE_${year.replace(/ /g,"_")}_Section_${section}_Feedback.xls`;
+    downloadExcelFile(filename, rows);
+}
+
+function clearFeedbackData() {
+    if (confirm("Are you sure you want to clear all student feedback data?")) {
+        localStorage.removeItem("collegeFeedbackData");
+        loadHodDashboard();
+    }
+}
+
+/* =========================
+   LOGOUT
+========================= */
+function logout() {
+
+    document.getElementById("studentDetailsPage").style.display = "none";
+    document.getElementById("feedbackPage").style.display = "none";
+    document.getElementById("hodDashboard").style.display = "none";
+    document.getElementById("loginPage").style.display = "block";
+
+    document.getElementById("loginForm").reset();
+    document.getElementById("studentDetailsForm").reset();
+
+    document.getElementById("loginMessage").style.display = "none";
+
+    loggedInStudentEmail = "";
+
+    resetFeedback();
+
+    document.getElementById("password").type = "password";
+    document.getElementById("showPassword").checked = false;
+}
+</script>
+</body>
+</html>
